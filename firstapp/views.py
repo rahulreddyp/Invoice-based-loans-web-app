@@ -15,6 +15,7 @@ def register(request):
             user = User.objects.get(username=username)
             messages.success(request, f'Account Created for {username}!')
             # name = request.POST.get('name')
+            name = request.POST.get('name')
             email = form.cleaned_data.get('email')
             mno = form.cleaned_data.get('MobileNo')
             pwd = form.cleaned_data.get('password1')
