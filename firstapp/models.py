@@ -15,3 +15,16 @@ class Signup(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+class Business(models.Model):
+    ap_id = models.ForeignKey(Signup, on_delete=models.CASCADE)
+    b_id = models.AutoField(primary_key=True)
+    b_name = models.CharField(max_length=30)
+    b_owner_name = models.CharField(max_length=30)
+    b_contact = models.CharField(max_length=12)
+    b_addr = models.TextField()
+    b_pan_no = models.CharField(max_length=10)
+    b_est_date = models.DateField()
+    b_type = models.CharField(max_length=20)
+    b_applied_date = models.DateTimeField(default=datetime.now())
+
