@@ -17,7 +17,7 @@ class Signup(models.Model):
         return str(self.user)
 
 class Business(models.Model):
-    ap_id = models.ForeignKey(Signup, on_delete=models.CASCADE)
+    ap_id = models.ForeignKey(Signup, on_delete=models.CASCADE, blank= True)
     b_id = models.AutoField(primary_key=True)
     b_name = models.CharField(max_length=30)
     b_owner_name = models.CharField(max_length=30)
@@ -27,4 +27,8 @@ class Business(models.Model):
     b_est_date = models.DateField()
     b_type = models.CharField(max_length=20)
     b_applied_date = models.DateTimeField(default=datetime.now())
+
+    def __str__(self):
+        return str(self.b_name)
+
 

@@ -31,18 +31,22 @@ def home(request):
     if request.method == "POST" and "apply" in request.POST:
         return render(request, 'ApplyLoan/bdetails.html', {})
     else:
+        print(request.session['_auth_user_id'])
         return render(request, 'home.html', {})
 
 def busdetails(request):
     if request.method == "POST":
-        details = Business()
-        details.b_name = request.POST.get('b_name')
-        details.b_owner_name = request.POST.get('b_owner_name')
-        details.b_contact = request.POST.get('b_contact')
-        details.b_addr = request.POST.get('b_addr')
-        details.b_pan_no = request.POST.get('b_pan_no')
-        details.b_est_date = request.POST.get('b_est_date')
-        details.b_type = request.POST.get('b_type')
+        apid = request.session['_auth_user_id']
+        su = Signup.objects.get(ap_id=apid)
+        ap_id = su
+        b_name = request.POST.get('bname')
+        b_owner_name = request.POST.get('b_owner_name')
+        b_contact = request.POST.get('b_contact')
+        b_addr = request.POST.get('b_addr')
+        b_pan_no = request.POST.get('b_pan_no')
+        b_est_date = request.POST.get('b_est_date')
+        b_type = request.POST.get('b_type')
+        details = Business(ap_id=ap_id, b_name=b_name, b_owner_name=b_owner_name, b_contact=b_contact, b_addr=b_addr, b_pan_no=b_pan_no, b_est_date=b_est_date, b_type=b_type)
         details.save()
         return HttpResponse("Details saved")
     else:
