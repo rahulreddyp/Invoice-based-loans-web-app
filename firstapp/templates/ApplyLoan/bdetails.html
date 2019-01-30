@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+{% block content %}
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+        <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+
+      <form action="{% url 'busdetails' %}" method="POST">
+      {% csrf_token %}
+        <h1>Business Details Form</h1>
+          <label for="bname">Name of the Business:</label>
+          <input type="text"  name="bname"/>
+          <label for="b_owner_name">Owner of the Business:</label>
+          <input type="text"  name="b_owner_name"/>
+          <label for="b_contact">Contact No:</label>
+          <input type="text"  name="b_contact"/>
+          <label for="b_addr">Business Address:</label>
+          <textarea type="text"  name="b_addr"></textarea>
+           <label for="b_pan_no">Business PAN:</label>
+          <input type="text"  name="b_pan_no"/>
+           <label for="b_est_date">Business Establish Date:</label>
+          <input type="date"  name="b_est_date"/>
+          <label for="b_type">Business Type:</label>
+          <input type="text"  name="b_type"/>
+
+           <!-- <select name="b_type">
+                <option value="1">Manufacturer</option>
+                <option value="2">Retailer</option>
+                <option value="3">Textile</option>
+            </select> -->
+        <input type="submit">Submit</input>
+      </form>
+
+    </body>
+{% endblock %}
