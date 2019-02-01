@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Signup, Business
+from .models import Signup, Business, Business_Invoice_Details
 from django.contrib.auth.models import User
 from passlib.hash import pbkdf2_sha256
 # Create your views here.
@@ -49,27 +49,34 @@ def busdetails(request):
         b_type = request.POST.get('b_type')
         details = Business(ap_id=su, b_name=b_name, b_owner_name=b_owner_name, b_contact=b_contact, b_addr=b_addr, b_pan_no=b_pan_no, b_est_date=b_est_date, b_type=b_type)
         details.save()
-        return HttpResponse("Details Saved")
-        #return redirect('basic')
+        return redirect('basic')
     else:
         return render(request, 'ApplyLoan/bdetails.html')
 
 
-'''
 def basic(request):
     if request.method == "POST":
-        num=int(request.POST.get("number_invoices"))
-        return redirect('temp',n=num)
+
+        uid = request.session['_auth_user_id']
+        su = Signup.objects.get(user=uid)
+        bid = Business.objects.get(b_id=su.ap_id)
+        b_turnover = request.POST.get('b_turnover')
+        b_total_invoice_amount = request.POST.get('b_total_invoice_amount')
+        b_no_of_invoices = request.POST.get('b_no_of_invoices')
+        Invdetails = Business_Invoice_Details(ap_id=su, b_id=bid, b_turnover=b_turnover, b_total_invoice_amount=b_total_invoice_amount, b_no_of_invoices=b_no_of_invoices)
+        Invdetails.save()
+        num = int(request.POST.get("b_no_of_invoices"))
+        return redirect('temp', n=num)
+        #return HttpResponse("Done Adding Invoice Details")
     else:
         return render(request, 'ApplyLoan/basic.html')
 
 def temp(request, n):
-    num=int(n)
-    if request.method=="POST" and num>1:
-        num=num-1
+    num = int(n)
+    if request.method == "POST" and num > 1:
+        num = num-1
         return redirect('temp', n=num)
-    elif request.method=="POST":
+    elif request.method == "POST":
         return HttpResponse("Done")
     else:
-        return render(request, 'ApplyLoan/form.html') 
-'''
+        return render(request, 'ApplyLoan/form.html')

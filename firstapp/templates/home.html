@@ -6,7 +6,7 @@
     <title>Home Page</title>
 </head>
 <body>
-    <br/><br/>
+    <div style="padding-top: 50px;">
     <h2>Welcome {{ user.username }}</h2>
     <div class="border-top pt-3">
             <small class=text-muted">Click on Apply Now and fill the details to apply for New Invoice Loan</small>
@@ -15,5 +15,7 @@
         {% csrf_token %}
     <button type="submit" name="apply">Apply Now</button>
         </form>
+    </div>
 </body>
 {% endblock %}
+

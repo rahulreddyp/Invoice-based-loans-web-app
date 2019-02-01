@@ -6,13 +6,14 @@
 
         <form method="POST">
             {% csrf_token %}
-            <br/><br/>
+            <div class="border-top pt-3">
             <fieldset class="form-group">
                 <legend class="border-bottom">Log In</legend>
                 {{  form }}
             </fieldset>
             <div class="form-group">
                  <button class="btn btn-outline-info" type="submit">LogIn</button>
+            </div>
             </div>
         </form>
         <div class="border-top pt-3">
