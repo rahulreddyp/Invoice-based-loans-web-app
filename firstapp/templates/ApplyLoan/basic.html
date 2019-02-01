@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+        <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+
+      <form action="" method="POST">
+      {% csrf_token %}
+        <h1>Invoice Details Form</h1>
+          <label for="b_turnover">Business Turnover:</label>
+          <input type="number" placeholder="Should Be Minimum 10 Lakh Rupees" name="b_turnover" required/>
+          <label for="b_total_invoice_amount">Total Invoice amount:</label>
+          <input type="number" placeholder="Should Be Minimum 1Lakh Rupees" name="b_total_invoice_amount" required/>
+          <label for="b_no_of_invoices">Number of the Invoices:</label>
+          <input type="number"  name="b_no_of_invoices" required/>
+{#          <label for="b_addr">Business Address:</label>#}
+{#          <textarea type="text"  name="b_addr"></textarea>#}
+{#           <label for="b_pan_no">Business PAN:</label>#}
+{#          <input type="text"  name="b_pan_no"/>#}
+{#           <label for="b_est_date">Business Establish Date:</label>#}
+{#          <input type="date"  name="b_est_date"/>#}
+{#          <label for="b_type">Business Type:</label>#}
+{#          <select name="b_type">#}
+{#                <option value="Manufacturer">Manufacturer</option>#}
+{#                <option value="Retailer">Retailer</option>#}
+{#                <option value="Textile">Textile</option>#}
+{#            </select>#}
+        <button type="submit" onsubmit="validation()">Submit</button>
+      </form >
+
+    </body>
+{% endblock %}
