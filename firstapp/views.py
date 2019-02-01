@@ -67,7 +67,7 @@ def basic(request):
         Invdetails.save()
         num = int(request.POST.get("b_no_of_invoices"))
         return redirect('temp', n=num)
-        #return HttpResponse("Done Adding Invoice Details")
+        # return HttpResponse("Done Adding Invoice Details")
     else:
         return render(request, 'ApplyLoan/basic.html')
 
