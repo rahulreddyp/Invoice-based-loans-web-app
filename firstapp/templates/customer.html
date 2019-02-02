@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+{% block content %}
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+        <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+  </head>
+  <body>
+
+      <form action="{% url 'cdetails' %}" method="POST">
+      {% csrf_token %}
+        <h1>Customer Details Form</h1>
+          <label for="c_owner_name">Customer Name:</label>
+            <input type="text"  name="c_owner_name"/>
+          <label for="cb_name">Customer's Business Name:</label>
+            <input type="text"  name="cb_name"/>
+          <label for="cb_contact">Customer business Contact No:</label>
+            <input type="text"  name="cb_contact"/>
+          <!--<label for="c_contact">Customer Contact No:</label>
+            <input type="text"  name="c_contact"/> -->
+          <label for="cb_address">Customer's Business Address:</label>
+            <textarea type="text"  name="cb_address"></textarea>
+          <label for="c_type">Customer's Business Type:</label>
+            <input type="text"  name="c_type"/>
+          <label for="cb_relation">Relationship Between Customer and Business:</label>
+            <input type="number"  name="cb_relation"/>
+          {% comment %}<label for="c_pan_no">Customer PAN:</label>
+            <input type="text"  name="c_pan_no"/>{% endcomment %}
+          <label for="c_bus_pan_no">Customer's Business PAN:</label>
+            <input type="text"  name="c_bus_pan_no"/>
+          <label for="c_est_date">Customer's Business Establish Date:</label>
+            <input type="date"  name="c_est_date"/>
+          <label for="c_turnover">Turnover of Customer's Business:</label>
+            <input type="number"  name="c_turnover"/>
+          <label for="c_invoice_no">Customer's invoice Number:</label>
+            <input type="number"  name="c_invoice_no"/>
+          <label for="c_invoice_amount">Customer's invoice amount:</label>
+            <input type="number"  name="c_invoice_amount"/>
+          <label for="c_invoice_issue_date">Invoice Issue Date:</label>
+            <input type="date"  name="c_invoice_issue_date"/>
+          <label for="c_invoice_due_date">Invoice Due Date:</label>
+            <input type="date"  name="c_invoice_due_date" />
+          <button name="Submit">Submit</button>
+          <!--<h2>Customer Documents Upload</h2>
+          <label for="c_bus_pan">Customer's Business Audit
+            <input type="file"  name="c_bus_pan"/></label>
+          <label for="c_sales_ledger">Sales Ledger
+            <input type="file"  name="c_sales_ledger"/></label>
+          <label for="cb_invoice">Customer Invoice
+            <input type="file"  name="cb_invoice"/></label>
+          <label for="cb_agreement">Customer-Business Agreement
+            <input type="file"  name="cb_agreement"/></label>
+          <input type="submit" name="submit" value="Submit"/>
+            <select name="b_type">
+                <option value="">Manufacturer</option>
+                <option value="2">Retailer</option>
+                <option value="3">Textile</option>
+            </select> -->
+      </form>
+
+    </body>
+    <script>
+document.getElementById("datepickericon").onclick = function(e){
+console.log('inside click');
+    document.getElementById("calendar").style.visibility="visible";
+    // document.getElementById("calendar").focus();
+    // You could write code to toggle this
+}</script>
+{% endblock %}
