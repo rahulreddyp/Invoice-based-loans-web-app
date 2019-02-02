@@ -43,3 +43,28 @@ class Business_Invoice_Details(models.Model):
 
     def __str__(self):
         return str(self.b_turnover)
+
+
+class Customer(models.Model):
+    ap_id = models.ForeignKey(Signup, on_delete=models.CASCADE, blank=True)
+    b_id = models.ForeignKey(Business, on_delete=models.CASCADE, blank=True)
+    c_id = models.AutoField(primary_key=True)
+    c_owner_name = models.CharField(max_length=30)
+    cb_name = models.CharField(max_length=30)
+   # c_contact = models.BigIntegerField(default=0)
+    cb_contact = models.BigIntegerField(default=0)
+    cb_address = models.CharField(max_length=150)
+    cb_type = models.CharField(max_length=30)
+    cb_relation = models.IntegerField(default=0)
+    #c_pan_no = models.CharField(max_length=20)
+    cb_pan_no = models.CharField(max_length=20)
+    cb_est_date = models.DateTimeField(default=datetime.now, blank=True)
+    cb_turnover = models.FloatField(default=0)
+    cb_invoice_no = models.BigIntegerField(default=0)
+    cb_invoice_amt = models.FloatField(default=0)
+    c_issue_date = models.DateTimeField(blank=True)
+    c_due_date = models.DateTimeField(blank=True)
+    c_stored_date = models.DateTimeField(default=datetime.now)
+
+    def __str__(self):
+        return str(self.cb_name)

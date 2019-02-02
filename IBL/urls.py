@@ -27,6 +27,6 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='logout.html'), name='logout'),
     path('busdetails/', user_views.busdetails, name='busdetails'),
-    path('basic', user_views.basic, name='basic'),
-    path(r'temp(?P<n>\d+)/$', user_views.temp,name='temp'),
+    path('invoiceform/', user_views.invdetails, name='invdetails'),
+    path('cdetails/', user_views.cdetails, name='cdetails'),
 ]

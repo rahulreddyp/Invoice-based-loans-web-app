@@ -2,18 +2,20 @@ from django.shortcuts import render, redirect, HttpResponse
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Signup, Business, Business_Invoice_Details
+from .models import Signup, Business, Business_Invoice_Details, Customer
 from django.contrib.auth.models import User
 from passlib.hash import pbkdf2_sha256
 # Create your views here.
 
+n = ''
+i = 0
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             form.save()
             username = form.cleaned_data.get('username')
-            #if not User.is_superuser:
+            # if not User.is_superuser:
             user = User.objects.get(username=username)
             messages.success(request, f'Account Created for {username}!')
             # name = request.POST.get('name')
@@ -33,7 +35,6 @@ def home(request):
     if request.method == "POST" and "apply" in request.POST:
         return render(request, 'ApplyLoan/bdetails.html', {})
     else:
-        # print(request.session['_auth_user_id'])
         return render(request, 'home.html', {})
 
 def busdetails(request):
@@ -47,36 +48,63 @@ def busdetails(request):
         b_pan_no = request.POST.get('b_pan_no')
         b_est_date = request.POST.get('b_est_date')
         b_type = request.POST.get('b_type')
-        details = Business(ap_id=su, b_name=b_name, b_owner_name=b_owner_name, b_contact=b_contact, b_addr=b_addr, b_pan_no=b_pan_no, b_est_date=b_est_date, b_type=b_type)
+        details = Business(ap_id=su, b_name=b_name, b_owner_name=b_owner_name, b_contact=b_contact, b_addr=b_addr,
+                           b_pan_no=b_pan_no, b_est_date=b_est_date, b_type=b_type)
         details.save()
-        return redirect('basic')
+        return redirect('invdetails')
     else:
         return render(request, 'ApplyLoan/bdetails.html')
 
 
-def basic(request):
+def invdetails(request):
+    global n
     if request.method == "POST":
 
         uid = request.session['_auth_user_id']
         su = Signup.objects.get(user=uid)
-        bid = Business.objects.get(b_id=su.ap_id)
+        bid = Business.objects.get(ap_id=su.ap_id)
+        # temp = bid.b_id
         b_turnover = request.POST.get('b_turnover')
         b_total_invoice_amount = request.POST.get('b_total_invoice_amount')
         b_no_of_invoices = request.POST.get('b_no_of_invoices')
-        Invdetails = Business_Invoice_Details(ap_id=su, b_id=bid, b_turnover=b_turnover, b_total_invoice_amount=b_total_invoice_amount, b_no_of_invoices=b_no_of_invoices)
-        Invdetails.save()
-        num = int(request.POST.get("b_no_of_invoices"))
-        return redirect('temp', n=num)
+        invdetail = Business_Invoice_Details(ap_id=su, b_id=bid, b_turnover=b_turnover, b_total_invoice_amount=b_total_invoice_amount, b_no_of_invoices=b_no_of_invoices)
+        invdetail.save()
+        n = int(request.POST.get("b_no_of_invoices"))
+        return redirect('cdetails')
         # return HttpResponse("Done Adding Invoice Details")
     else:
-        return render(request, 'ApplyLoan/basic.html')
+        return render(request, 'ApplyLoan/Invoiceform.html')
 
-def temp(request, n):
-    num = int(n)
-    if request.method == "POST" and num > 1:
-        num = num-1
-        return redirect('temp', n=num)
-    elif request.method == "POST":
-        return HttpResponse("Done")
+def cdetails(request):
+    global n
+    if n != 0:
+        if request.method == "POST":
+                uid = request.session['_auth_user_id']
+                su = Signup.objects.get(user=uid)
+                bid = Business.objects.get(ap_id=su.ap_id)
+                c_owner_name = request.POST.get('c_owner_name')
+                cb_name = request.POST.get('cb_name')
+                cb_contact = request.POST.get('cb_contact')
+                cb_address = request.POST.get('cb_address')
+                cb_type = request.POST.get('c_type')
+                cb_relation = request.POST.get('cb_relation')
+                cb_pan_no = request.POST.get('c_bus_pan_no')
+                cb_est_date = request.POST.get('c_est_date')
+                cb_turnover = request.POST.get('c_turnover')
+                cb_invoice_no = request.POST.get('c_invoice_no')
+                cb_invoice_amt = request.POST.get('c_invoice_amount')
+                c_issue_date = request.POST.get('c_invoice_issue_date')
+                c_due_date = request.POST.get('c_invoice_due_date')
+                custdetails = Customer(ap_id=su, b_id=bid, c_owner_name=c_owner_name, cb_name=cb_name,
+                                       cb_contact=cb_contact, cb_address=cb_address, cb_type=cb_type,
+                                       cb_relation=cb_relation, cb_pan_no=cb_pan_no,
+                                       cb_est_date=cb_est_date, cb_turnover=cb_turnover,
+                                       cb_invoice_no=cb_invoice_no, cb_invoice_amt=cb_invoice_amt,
+                                       c_issue_date=c_issue_date, c_due_date=c_due_date)
+                custdetails.save()
+                n = n-1
+                return redirect('cdetails')
+        else:
+            return render(request, 'customer.html')
     else:
-        return render(request, 'ApplyLoan/form.html')
+        return redirect('home')
