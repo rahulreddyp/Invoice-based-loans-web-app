@@ -32,8 +32,10 @@ def register(request):
 
 @login_required
 def home(request):
+    # request.session.set_expiry(60)
     if request.method == "POST" and "apply" in request.POST:
-        return render(request, 'ApplyLoan/bdetails.html', {})
+        return redirect('busdetails')
+        # (request, 'ApplyLoan/bdetails.html', {})
     else:
         return render(request, 'home.html', {})
 
