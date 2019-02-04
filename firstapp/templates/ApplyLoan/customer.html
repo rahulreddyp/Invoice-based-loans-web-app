@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+{% block content %}
+  <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login</title>
+        <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+        <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+        <style lang="css">
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        </style>
+  </head>
+  <body>
+      <form action="{% url 'cdetails' %}" method="POST" onsubmit="return valid()">
+          {% csrf_token %}
+          <h1>Customer {{ n }} Details Form  </h1>
+          <label for="c_owner_name">Customer Name:</label>
+            <input type="text" placeholder="Specify same name which is in the Invoice"  name="c_owner_name" id="c_owner_name" required/>
+          <label for="cb_name">Customer's Business Name:</label>
+            <input type="text"  name="cb_name" required/>
+          <label for="cb_contact">Customer Business Contact No:</label>
+            <input type="number" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)" name="cb_contact" required/>
+          <!--<label for="c_contact">Customer Contact No:</label>
+            <input type="text"  name="c_contact"/> -->
+          <label for="cb_address">Customer's Business Address:</label>
+            <textarea type="text"  name="cb_address" required></textarea>
+          <label for="c_type">Customer's Business Type:</label>
+            <input type="text" id="c_type" placeholder="Eg: Manufacture,Retail,Textile,etc"  name="c_type" required/>
+          <label for="cb_relation" >Relationship Between Customer and Business:</label>
+            <input type="number" id="cb_relation" placeholder="Should be minimum 2 years" name="cb_relation" required/>
+          {% comment %}<label for="c_pan_no">Customer PAN:</label>
+            <input type="text"  name="c_pan_no"/>{% endcomment %}
+          <label for="c_bus_pan_no">Customer's Business PAN:</label>
+            <input type="text" maxlength="10" name="c_bus_pan_no"/>
+          <label for="c_est_date">Customer's Business Establish Date:</label>
+            <input type="date"  name="c_est_date"/>
+          <label for="c_turnover">Turnover of Customer's Business:</label>
+            <input type="number" id="c_turnover" name="c_turnover"/>
+          <label for="c_invoice_no">Customer's invoice Number:</label>
+            <input type="number"  name="c_invoice_no"/>
+          <label for="c_invoice_amount">Customer's invoice amount:</label>
+            <input type="number" placeholder="Invoice amount must be greaterthan 50k and lessthan 5Lakhs" id="c_invoice_amount" name="c_invoice_amount"/>
+          <label for="c_invoice_issue_date">Invoice Issue Date:</label>
+            <input type="date"  name="c_invoice_issue_date"/>
+          <label for="c_invoice_due_date">Invoice Due Date:</label>
+            <input type="date" id="c_invoice_due_date" name="c_invoice_due_date" />
+          <button name="Submit">Submit</button>
+      </form>
+    </body>
+    <script>
+    function valid() {
+           var regex = /^[a-zA-Z ]*$/;
+           //window.alert(500000>=document.getElementById("c_invoice_amount").value || document.getElementById("c_invoice_amount").value<=50000)
+           var dued= document.getElementById("c_invoice_due_date").value;
+           var newdate = new Date();
+           newdate.setDate(newdate.getDate() + 10);
+           var mydat =  new Date(dued);
+           //if(mydat.getDate()>newdate.getDate()){
+           if(!regex.test(document.getElementById("c_type").value)){
+               window.alert(" Customer Type only allows Characters!!");
+               return false;
+           }else if(document.getElementById("cb_relation").value<=2){
+               window.alert("Customer-Business Relation Should be more than 2 years");
+               return false;
+           }else if(!regex.test(document.getElementById("c_owner_name").value)){
+               window.alert("Customer Name allows only characters!!");
+               return false;
+           }else if(newdate.getDate()>mydat.getDate()){
+               window.alert("Invoice Due date should be higher than 10 days from today's date");
+               return false;
+           }else if(50000>=document.getElementById("c_invoice_amount").value || document.getElementById("c_invoice_amount").value>=500000){
+               window.alert("Invoice amount should be greater than 50k and less than 5Lc");
+               return false;
+           }else {
+               return true;
+           }
+       }
+
+</script>
+{% endblock %}

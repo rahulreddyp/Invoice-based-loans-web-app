@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-# Create your models here.
 from django.forms import forms
 from datetime import datetime
 
@@ -22,8 +21,8 @@ class Business(models.Model):
     b_id = models.AutoField(primary_key=True)
     b_name = models.CharField(max_length=30)
     b_owner_name = models.CharField(max_length=30)
-    b_contact = models.CharField(max_length=12)
-    b_addr = models.TextField()
+    b_contact = models.BigIntegerField(default=0)
+    b_addr = models.TextField(blank=True)
     b_pan_no = models.CharField(max_length=10)
     b_est_date = models.DateField()
     b_type = models.CharField(max_length=20)

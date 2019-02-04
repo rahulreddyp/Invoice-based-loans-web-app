@@ -8,7 +8,7 @@ from passlib.hash import pbkdf2_sha256
 # Create your views here.
 
 n = ''
-i = 0
+k = 0
 def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
@@ -32,14 +32,14 @@ def register(request):
 
 @login_required
 def home(request):
-    # request.session.set_expiry(60)
+    # request.session.set_expiry(90)
     if request.method == "POST" and "apply" in request.POST:
-        return redirect('busdetails')
+        return redirect('bsdetails')
         # (request, 'ApplyLoan/bdetails.html', {})
     else:
         return render(request, 'home.html', {})
 
-def busdetails(request):
+def bsdetails(request):
     if request.method == "POST":
         uid = request.session['_auth_user_id']
         su = Signup.objects.get(user=uid)
@@ -59,7 +59,7 @@ def busdetails(request):
 
 
 def invdetails(request):
-    global n
+    global n, k
     if request.method == "POST":
 
         uid = request.session['_auth_user_id']
@@ -71,16 +71,22 @@ def invdetails(request):
         b_no_of_invoices = request.POST.get('b_no_of_invoices')
         invdetail = Business_Invoice_Details(ap_id=su, b_id=bid, b_turnover=b_turnover, b_total_invoice_amount=b_total_invoice_amount, b_no_of_invoices=b_no_of_invoices)
         invdetail.save()
+        # storing b_no_of_invoices value for getting each customer Invoice's details
         n = int(request.POST.get("b_no_of_invoices"))
+        # Storing global variable n value into k for future reference
+        k = n
         return redirect('cdetails')
         # return HttpResponse("Done Adding Invoice Details")
     else:
         return render(request, 'ApplyLoan/Invoiceform.html')
 
 def cdetails(request):
-    global n
+    global n, k
+    # Recursion for storing Individual Customer Details
     if n != 0:
+        temp = int(k/n)
         if request.method == "POST":
+
                 uid = request.session['_auth_user_id']
                 su = Signup.objects.get(user=uid)
                 bid = Business.objects.get(ap_id=su.ap_id)
@@ -107,6 +113,6 @@ def cdetails(request):
                 n = n-1
                 return redirect('cdetails')
         else:
-            return render(request, 'customer.html')
+            return render(request, 'ApplyLoan/customer.html', {'n': temp})
     else:
         return redirect('home')

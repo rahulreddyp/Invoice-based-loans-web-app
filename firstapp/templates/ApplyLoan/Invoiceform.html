@@ -8,20 +8,50 @@
         <title>Apply New Loan</title>
         <link rel="stylesheet" href="{% static 'css/blog.css' %}">
         <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
+        <style lang="css">
+            input[type=number]::-webkit-inner-spin-button,
+            input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        </style>
   </head>
   <body>
 
-      <form action="" method="POST">
+      <form action="" onsubmit="return validation()" method="POST">
       {% csrf_token %}
         <h1>Invoice Details Form</h1>
           <label for="b_turnover">Business Turnover:</label>
-          <input type="number" placeholder="Should Be Minimum 10 Lakh Rupees" name="b_turnover" required/>
+          <input type="number" placeholder="Should Be Minimum 10 Lakh Rupees" id="b_turnover" name="b_turnover" required/>
+          <p id="demo"></p>
           <label for="b_total_invoice_amount">Total Invoice amount:</label>
-          <input type="number" placeholder="Should Be Minimum 1Lakh Rupees" name="b_total_invoice_amount" required/>
+          <input type="number" placeholder="Should Be Minimum 1 Lakh Rupees" id="b_total_invoice_amount" name="b_total_invoice_amount" required/>
+          <p id="demo"></p>
           <label for="b_no_of_invoices">Number of the Invoices:</label>
-          <input type="number"  name="b_no_of_invoices" required/>
+          <input type="number" placeholder=""  name="b_no_of_invoices" required/>
         <button type="submit" onsubmit="validation()">Submit</button>
       </form >
 
     </body>
+    <script>
+      function validation() {
+        if(document.getElementById("b_turnover").value < 1000000 ) {
+            window.alert("Business Turnover must be greater than 10 Lakhs");
+            return false;
+        }
+        if(document.getElementById("b_total_invoice_amount").value < 100000 ) {
+            window.alert("Total Invoice Amount must be greater than 1 Lakh");
+            return false;
+        }
+      }
+
+     /*  inpObj = document.getElementsByName("b_turnover");
+        if (inpObj<1000000) {
+            document.getElementById("demo").innerHTML = inpObj.validationMessage;
+        }
+        inpObj = document.getElementsByName("b_total_invoice_amount");
+        if (inpObj<100000 || inpObj>1000000) {
+            document.getElementById("demo").innerHTML = inpObj.validationMessage;
+        } */
+    </script>
 {% endblock %}
