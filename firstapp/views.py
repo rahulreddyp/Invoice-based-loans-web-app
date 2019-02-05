@@ -115,4 +115,4 @@ def cdetails(request):
         else:
             return render(request, 'ApplyLoan/customer.html', {'n': temp})
     else:
-        return redirect('home')
+        return render(request, 'Status.html', {})
