@@ -52,6 +52,7 @@ class Customer(models.Model):
     cb_name = models.CharField(max_length=30)
    # c_contact = models.BigIntegerField(default=0)
     cb_contact = models.BigIntegerField(default=0)
+    cb_email = models.CharField(max_length=40)
     cb_address = models.CharField(max_length=150)
     cb_type = models.CharField(max_length=30)
     cb_relation = models.IntegerField(default=0)

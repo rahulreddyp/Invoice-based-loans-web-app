@@ -7,7 +7,7 @@ from django.contrib.auth.models import User
 from passlib.hash import pbkdf2_sha256
 # Create your views here.
 
-n = ''
+n = 0
 k = 0
 def register(request):
     if request.method == 'POST':
@@ -36,6 +36,18 @@ def home(request):
     if request.method == "POST" and "apply" in request.POST:
         return redirect('bsdetails')
         # (request, 'ApplyLoan/bdetails.html', {})
+    elif request.method == "POST" and "resume" in request.POST:
+        uid = request.session['_auth_user_id']
+        su = Signup.objects.get(user=uid)
+        bid = Business.objects.filter(b_id=su.ap_id)
+        print(bid)
+        invid = Business_Invoice_Details.objects.filter(b_id=bid[0]).exists()
+        if invid:
+            return redirect('cdetails')
+        elif bid:
+            return redirect('invdetails')
+        else:
+            return HttpResponse("Sorry, You did'nt have any previous loans for Now!")
     else:
         return render(request, 'home.html', {})
 
@@ -74,7 +86,7 @@ def invdetails(request):
         # storing b_no_of_invoices value for getting each customer Invoice's details
         n = int(request.POST.get("b_no_of_invoices"))
         # Storing global variable n value into k for future reference
-        k = n
+
         return redirect('cdetails')
         # return HttpResponse("Done Adding Invoice Details")
     else:
@@ -84,7 +96,7 @@ def cdetails(request):
     global n, k
     # Recursion for storing Individual Customer Details
     if n != 0:
-        temp = int(k/n)
+        k = k+1
         if request.method == "POST":
 
                 uid = request.session['_auth_user_id']
@@ -93,6 +105,7 @@ def cdetails(request):
                 c_owner_name = request.POST.get('c_owner_name')
                 cb_name = request.POST.get('cb_name')
                 cb_contact = request.POST.get('cb_contact')
+                cb_email = request.POST.get('cb_email')
                 cb_address = request.POST.get('cb_address')
                 cb_type = request.POST.get('c_type')
                 cb_relation = request.POST.get('cb_relation')
@@ -104,7 +117,7 @@ def cdetails(request):
                 c_issue_date = request.POST.get('c_invoice_issue_date')
                 c_due_date = request.POST.get('c_invoice_due_date')
                 custdetails = Customer(ap_id=su, b_id=bid, c_owner_name=c_owner_name, cb_name=cb_name,
-                                       cb_contact=cb_contact, cb_address=cb_address, cb_type=cb_type,
+                                       cb_contact=cb_contact, cb_email=cb_email, cb_address=cb_address, cb_type=cb_type,
                                        cb_relation=cb_relation, cb_pan_no=cb_pan_no,
                                        cb_est_date=cb_est_date, cb_turnover=cb_turnover,
                                        cb_invoice_no=cb_invoice_no, cb_invoice_amt=cb_invoice_amt,
@@ -113,6 +126,6 @@ def cdetails(request):
                 n = n-1
                 return redirect('cdetails')
         else:
-            return render(request, 'ApplyLoan/customer.html', {'n': temp})
+            return render(request, 'ApplyLoan/customer.html', {'n': k})
     else:
         return render(request, 'Status.html', {})

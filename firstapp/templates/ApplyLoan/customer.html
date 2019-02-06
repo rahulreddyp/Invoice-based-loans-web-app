@@ -19,7 +19,7 @@
       <form action="{% url 'cdetails' %}" method="POST" onsubmit="return valid()">
           {% csrf_token %}
           <h1>Customer {{ n }} Details Form  </h1>
-          <label for="c_owner_name">Customer Name:</label>
+          <label for="c_owner_name">Customer Owner Name:</label>
             <input type="text" placeholder="Specify same name which is in the Invoice"  name="c_owner_name" id="c_owner_name" required/>
           <label for="cb_name">Customer's Business Name:</label>
             <input type="text"  name="cb_name" required/>
@@ -27,6 +27,8 @@
             <input type="number" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)" name="cb_contact" required/>
           <!--<label for="c_contact">Customer Contact No:</label>
             <input type="text"  name="c_contact"/> -->
+          <label for="cb_email">Customer Email Id:</label>
+          <input type="text"  name="cb_email" required/>
           <label for="cb_address">Customer's Business Address:</label>
             <textarea type="text"  name="cb_address" required></textarea>
           <label for="c_type">Customer's Business Type:</label>
