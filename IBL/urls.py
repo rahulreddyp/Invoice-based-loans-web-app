@@ -7,6 +7,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # path('firstapp/', include('firstapp.urls')),
     path('home/', user_views.home, name='home'),
+    path('home1/', user_views.home1, name='home1'),
     path('register/', user_views.register, name='register'),
     # path('register/login', user_views.login, name='login'),
     path('login/', auth_views.LoginView.as_view(template_name='login.html', redirect_authenticated_user=True), name='login'),

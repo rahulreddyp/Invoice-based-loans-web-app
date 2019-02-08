@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 {% extends 'base.html' %}
 {%  load crispy_forms_tags %}
+
 {% block content %}
     <div class="content_sec">
 
@@ -8,6 +9,7 @@
             {% csrf_token %}
             <div class="border-top pt-3">
             <fieldset class="form-group">
+
                 <legend class="border-bottom">Log In</legend>
                 {{  form }}
             </fieldset>

@@ -10,6 +10,8 @@ from passlib.hash import pbkdf2_sha256
 n = 0
 k = 0
 def register(request):
+    # if not request.session.is_empty():
+    # return redirect('logout')
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
@@ -32,24 +34,29 @@ def register(request):
 
 @login_required
 def home(request):
+    uid = request.session['_auth_user_id']
+    su = Signup.objects.get(user=uid)
     # request.session.set_expiry(90)
     if request.method == "POST" and "apply" in request.POST:
-        return redirect('bsdetails')
+        if Business.objects.filter(b_id=su.ap_id):
+            return HttpResponse("You have already Submitted  your Business Details!!")
+        else:
+            return redirect('bsdetails')
         # (request, 'ApplyLoan/bdetails.html', {})
     elif request.method == "POST" and "resume" in request.POST:
-        uid = request.session['_auth_user_id']
-        su = Signup.objects.get(user=uid)
+        # su = Signup.objects.get(user=uid)
         bid = Business.objects.filter(b_id=su.ap_id)
-        print(bid)
         invid = Business_Invoice_Details.objects.filter(b_id=bid[0]).exists()
         if invid:
             return redirect('cdetails')
         elif bid:
             return redirect('invdetails')
         else:
-            return HttpResponse("Sorry, You did'nt have any previous loans for Now!")
+            return HttpResponse("Sorry, You did'nt apply for any Loan. Go to Home page and Click on Apply Now!")
+
     else:
         return render(request, 'home.html', {})
+
 
 def bsdetails(request):
     if request.method == "POST":
@@ -65,10 +72,16 @@ def bsdetails(request):
         details = Business(ap_id=su, b_name=b_name, b_owner_name=b_owner_name, b_contact=b_contact, b_addr=b_addr,
                            b_pan_no=b_pan_no, b_est_date=b_est_date, b_type=b_type)
         details.save()
-        return redirect('invdetails')
+        return redirect('home1')
     else:
         return render(request, 'ApplyLoan/bdetails.html')
 
+@login_required
+def home1(request):
+    if request.method == "POST" and "resume" in request.POST:
+        return redirect('invdetails')
+    else:
+        return render(request, 'ApplyLoan/home1.html', {})
 
 def invdetails(request):
     global n, k

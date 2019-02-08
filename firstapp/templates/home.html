@@ -9,14 +9,15 @@
     <div style="padding-top: 50px;">
     <h2>Welcome {{ user.username }}</h2>
     <div class="border-top pt-3">
-            <small class=text-muted">Click on Apply Now and fill the details to apply for New Invoice Loan</small>
+            <small class=text-muted">Please fill your Business Details by clicking the button below</small>
         </div>
     <form action="" method="POST">
         {% csrf_token %}
     <button type="submit" style="background-color: #4CAF50;border: none;color: white;padding: 15px 32px;cursor: pointer;"
-            name="apply">Apply Now</button>&nbsp;&nbsp;
+            name="apply">Business Details</button>
+        &nbsp;&nbsp;
         <button type="submit" style="background-color: #4CAF50;border: none;color: white;padding: 15px 32px;cursor: pointer;"
-            name="resume">Resume Loan Application</button>
+            name="resume" disabled>Resume Loan Application</button>
         </form>
     </div>
 </body>

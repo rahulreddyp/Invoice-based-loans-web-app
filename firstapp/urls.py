@@ -6,7 +6,5 @@ from django.urls import path, include
 urlpatterns = [
     path('register/', views.register, name='signup'),
     path('home/', views.home, name='home'),
-
-
 ]
 
