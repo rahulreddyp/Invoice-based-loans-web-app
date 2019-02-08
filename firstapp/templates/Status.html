@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block content %}
+<body>
+<center><h1>Status</h1></center>
+<p>Details</p>
+<meter value="10" min="0" max="10"></meter><br>
+<p>Business documents upload</p>
+<meter value="10" min="0" max="10"></meter><br>
+<p>Customer documents upload</p>
+<meter value="10" min="0" max="10"></meter><br>
+<p>Status of acceptance</p>
+<meter value="0" min="0" max="10"></meter><br>
+<p>Disbursement</p>
+<meter value="0" min="0" max="10"></meter><br>
+<p>Repayment</p>
+<meter value="0" min="0" max="10"></meter><br>
+
+</body>
+{% endblock %}
