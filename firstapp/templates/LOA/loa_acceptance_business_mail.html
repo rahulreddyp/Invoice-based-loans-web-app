@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Good Morning</title>
+</head>
+<body>
+<form method="post" action="{% url 'submittedbusiness' %}" id="form">
+    {% csrf_token %}
+If you have read the document and are willing to pay back please enter your name and click submit<br>
+<input type="text"placeholder="Enter the Full Name"><br>
+<input type="submit"><br>
+</form>
+</body>
+</html>
