@@ -15,4 +15,9 @@ urlpatterns = [
     path('bsdetails/', user_views.bsdetails, name='bsdetails'),
     path('invoiceform/', user_views.invdetails, name='invdetails'),
     path('cdetails/', user_views.cdetails, name='cdetails'),
+    path("basic/upload_books/verifycustomers", user_views.verifycustomers, name='verifycustomers'),
+    path("basic/upload_books/verify/submittedcustomers", user_views.submittedcustomer, name='submittedcustomer'),
+    path("basic/upload_books/verifybusiness", user_views.verifybusiness, name='verifybusiness'),
+    path("basic/upload_books/verify/submittedbusiness",user_views.submittedbusiness, name='submittedbusiness'),
+
 ]

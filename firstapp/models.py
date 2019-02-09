@@ -50,13 +50,13 @@ class Customer(models.Model):
     c_id = models.AutoField(primary_key=True)
     c_owner_name = models.CharField(max_length=30)
     cb_name = models.CharField(max_length=30)
-   # c_contact = models.BigIntegerField(default=0)
+    # c_contact = models.BigIntegerField(default=0)
     cb_contact = models.BigIntegerField(default=0)
     cb_email = models.CharField(max_length=40)
     cb_address = models.CharField(max_length=150)
     cb_type = models.CharField(max_length=30)
     cb_relation = models.IntegerField(default=0)
-    #c_pan_no = models.CharField(max_length=20)
+    # c_pan_no = models.CharField(max_length=20)
     cb_pan_no = models.CharField(max_length=20)
     cb_est_date = models.DateTimeField(default=datetime.now, blank=True)
     cb_turnover = models.FloatField(default=0)
@@ -68,3 +68,28 @@ class Customer(models.Model):
 
     def __str__(self):
         return str(self.cb_name)
+
+class B_Docs(models.Model):
+    ap_id = models.ForeignKey(Signup, on_delete=models.CASCADE, blank=True)
+    b_id = models.ForeignKey(Business, on_delete=models.CASCADE, blank=True)
+    doc_id = models.AutoField(primary_key=True)
+    b_file_audit = models.TextField(blank=True)
+    b_sales_ledger = models.TextField(blank=True)
+
+class C_Docs(models.Model):
+    ap_id = models.ForeignKey(Signup, on_delete=models.CASCADE, blank=True)
+    b_id = models.ForeignKey(Business, on_delete=models.CASCADE, blank=True)
+    c_id = models.ForeignKey(Customer, on_delete=models.CASCADE, blank=True)
+    c_file_audit = models.TextField(blank=True)
+    c_sales_ledger = models.TextField(blank=True)
+    c_file_invoice = models.TextField(blank=True)
+    c_file_statement = models.TextField(blank=True)
+
+class StatusCustomer(models.Model):
+    ap_id = models.ForeignKey(Signup, on_delete=True, blank=True)
+    c_id = models.ForeignKey(Customer, on_delete=True, blank=True)
+    status = models.CharField(default='False', max_length=20)
+
+class StatusBusiness(models.Model):
+    ap_id = models.ForeignKey(Signup, on_delete=True, blank=True)
+    status = models.CharField(default='False', max_length=20)

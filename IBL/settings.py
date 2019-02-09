@@ -127,14 +127,16 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'firstapp','static'),
+    os.path.join(BASE_DIR, 'firstapp', 'static'),
 )
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = 'media/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
-SESSION_EXPIRE_SECONDS = 1000
+SESSION_EXPIRE_SECONDS = 10000
 SESSION_EXPIRE_AFTER_LAST_ACTIVITY = True

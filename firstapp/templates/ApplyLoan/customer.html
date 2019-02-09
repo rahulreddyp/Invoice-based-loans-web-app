@@ -16,19 +16,19 @@
         </style>
   </head>
   <body>
-      <form action="{% url 'cdetails' %}" method="POST" onsubmit="return valid()">
+      <form action="{% url 'cdetails' %}" method="POST" onsubmit="return valid()" enctype="multipart/form-data">
           {% csrf_token %}
           <h1>Customer {{ n }} Details Form  </h1>
           <label for="c_owner_name">Customer Owner Name:</label>
             <input type="text" placeholder="Specify same name which is in the Invoice"  name="c_owner_name" id="c_owner_name" required/>
           <label for="cb_name">Customer's Business Name:</label>
-            <input type="text"  name="cb_name" required/>
+          <input type="text" id="cb_name"  name="cb_name" required/>
           <label for="cb_contact">Customer Business Contact No:</label>
             <input type="number" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)" name="cb_contact" required/>
           <!--<label for="c_contact">Customer Contact No:</label>
             <input type="text"  name="c_contact"/> -->
           <label for="cb_email">Customer Email Id:</label>
-          <input type="text"  name="cb_email" required/>
+          <input type="text" id="cb_email" name="cb_email" required/>
           <label for="cb_address">Customer's Business Address:</label>
             <textarea type="text"  name="cb_address" required></textarea>
           <label for="c_type">Customer's Business Type:</label>
@@ -38,19 +38,29 @@
           {% comment %}<label for="c_pan_no">Customer PAN:</label>
             <input type="text"  name="c_pan_no"/>{% endcomment %}
           <label for="c_bus_pan_no">Customer's Business PAN:</label>
-            <input type="text" maxlength="10" name="c_bus_pan_no"/>
+            <input type="text" maxlength="10" id="c_bus_pan_no" name="c_bus_pan_no"/>
           <label for="c_est_date">Customer's Business Establish Date:</label>
             <input type="date"  name="c_est_date"/>
           <label for="c_turnover">Turnover of Customer's Business:</label>
             <input type="number" id="c_turnover" name="c_turnover"/>
           <label for="c_invoice_no">Customer's invoice Number:</label>
-            <input type="number"  name="c_invoice_no"/>
+            <input type="number" id="c_invoice_no" name="c_invoice_no"/>
           <label for="c_invoice_amount">Customer's invoice amount:</label>
-            <input type="number" placeholder="Invoice amount must be greaterthan 50k and lessthan 5Lakhs" id="c_invoice_amount" name="c_invoice_amount"/>
+            <input type="number" placeholder="Invoice amount must be greaterthan 50k and lessthan 5Lakhs" id="c_invoice_amount"
+                   name="c_invoice_amount"/>
           <label for="c_invoice_issue_date">Invoice Issue Date:</label>
-            <input type="date"  name="c_invoice_issue_date"/>
+            <input type="date" id="c_invoice_issue_date" name="c_invoice_issue_date"/>
           <label for="c_invoice_due_date">Invoice Due Date:</label>
             <input type="date" id="c_invoice_due_date" name="c_invoice_due_date" />
+          <label for="c_file_audit">Customer Audit:</label>
+          <input type="file" placeholder="" name="c_file_audit" id="c_file_audit">
+            <br/><label for="c_file_saleledger">Customer Sales Ledger:</label>
+          <input type="file" placeholder="" name="c_file_saleledger" id="c_file_saleledger">
+            <br/><label for="c_file_invoice">Customer Invoice:</label>
+          <input type="file" placeholder="" name="c_file_invoice" id="c_file_invoice">
+            <br/><label for="c_file_statement">Customer File Statement:</label>
+            <input type="file" placeholder="" name="c_file_statement" id="c_file_statement">
+          <br/>
           <button name="Submit">Submit</button>
       </form>
     </body>

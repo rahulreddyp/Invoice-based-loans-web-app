@@ -18,7 +18,7 @@
   </head>
   <body>
 
-      <form action="" onsubmit="return validation()" method="POST">
+      <form action="" onsubmit="return validation()" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
         <h1>Invoice Details Form</h1>
           <label for="b_turnover">Business Turnover:</label>
@@ -29,6 +29,12 @@
           <p id="demo"></p>
           <label for="b_no_of_invoices">Number of the Invoices:</label>
           <input type="number" placeholder="Allowed upto max of 2 Invoices"  name="b_no_of_invoices" required/>
+          <p>Please upload required files of ".docx" type and max size of 1 MB!</p>
+          <label for="b_file_audit">Audit File:</label>
+          <input type="file" placeholder="" name="b_file_audit" id="b_file_audit">
+          <label for="b_file_saleledger">Sales Ledger:</label>
+          <input type="file" placeholder="" name="b_file_saleledger" id="b_file_saleledger">
+          <br/><br/>
         <button type="submit" onsubmit="validation()">Submit</button>
       </form >
 
