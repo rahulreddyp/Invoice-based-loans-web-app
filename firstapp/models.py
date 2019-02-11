@@ -87,6 +87,7 @@ class C_Docs(models.Model):
     c_file_statement = models.TextField(blank=True)
 
 class StatusCustomer(models.Model):
+    b_id = models.ForeignKey(Business, on_delete=models.CASCADE, blank=True)
     ap_id = models.ForeignKey(Signup, on_delete=True, blank=True)
     c_id = models.ForeignKey(Customer, on_delete=True, blank=True)
     status = models.CharField(default='False', max_length=20)

@@ -22,13 +22,13 @@
       {% csrf_token %}
         <h1>Invoice Details Form</h1>
           <label for="b_turnover">Business Turnover:</label>
-          <input type="number" placeholder="Should Be Minimum 10 Lakh Rupees" id="b_turnover" name="b_turnover" required/>
+          <input type="number" placeholder="Should Be Minimum 10 Lakh Rupees" id="b_turnover" name="b_turnover" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
           <p id="demo"></p>
           <label for="b_total_invoice_amount">Total Invoice amount:</label>
-          <input type="number" placeholder="Must be Min 1 Lakh and max 2Lakh Rupees" id="b_total_invoice_amount" name="b_total_invoice_amount" required/>
+          <input type="number" placeholder="Must be Min 1 Lakh and max 2Lakh Rupees" id="b_total_invoice_amount" name="b_total_invoice_amount" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
           <p id="demo"></p>
           <label for="b_no_of_invoices">Number of the Invoices:</label>
-          <input type="number" placeholder="Allowed upto max of 2 Invoices"  name="b_no_of_invoices" required/>
+          <input type="number" placeholder="Allowed upto max of 2 Invoices"  name="b_no_of_invoices" maxlength="1" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
           <p>Please upload required files of ".docx" type and max size of 1 MB!</p>
           <label for="b_file_audit">Audit File:</label>
           <input type="file" placeholder="" name="b_file_audit" id="b_file_audit">

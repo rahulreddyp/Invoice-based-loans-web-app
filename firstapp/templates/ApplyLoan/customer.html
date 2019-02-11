@@ -16,7 +16,7 @@
         </style>
   </head>
   <body>
-      <form action="{% url 'cdetails' %}" method="POST" onsubmit="return valid()" enctype="multipart/form-data">
+      <form action="{% url 'cdetails' %}" onsubmit="return valid()" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
           <h1>Customer {{ n }} Details Form  </h1>
           <label for="c_owner_name">Customer Owner Name:</label>
@@ -34,20 +34,20 @@
           <label for="c_type">Customer's Business Type:</label>
             <input type="text" id="c_type" placeholder="Eg: Manufacture,Retail,Textile,etc"  name="c_type" required/>
           <label for="cb_relation" >Relationship Between Customer and Business:</label>
-            <input type="number" id="cb_relation" placeholder="Should be minimum 2 years" name="cb_relation" required/>
+            <input type="number" id="cb_relation" placeholder="Should be minimum 2 years" name="cb_relation" maxlength="3" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
           {% comment %}<label for="c_pan_no">Customer PAN:</label>
             <input type="text"  name="c_pan_no"/>{% endcomment %}
           <label for="c_bus_pan_no">Customer's Business PAN:</label>
-            <input type="text" maxlength="10" id="c_bus_pan_no" name="c_bus_pan_no"/>
+            <input type="text" maxlength="10" id="c_bus_pan_no" name="c_bus_pan_no" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  />
           <label for="c_est_date">Customer's Business Establish Date:</label>
             <input type="date"  name="c_est_date"/>
           <label for="c_turnover">Turnover of Customer's Business:</label>
-            <input type="number" id="c_turnover" name="c_turnover"/>
+            <input type="number" id="c_turnover" name="c_turnover" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  />
           <label for="c_invoice_no">Customer's invoice Number:</label>
             <input type="number" id="c_invoice_no" name="c_invoice_no"/>
           <label for="c_invoice_amount">Customer's invoice amount:</label>
             <input type="number" placeholder="Invoice amount must be greaterthan 50k and lessthan 5Lakhs" id="c_invoice_amount"
-                   name="c_invoice_amount"/>
+                   name="c_invoice_amount" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  />
           <label for="c_invoice_issue_date">Invoice Issue Date:</label>
             <input type="date" id="c_invoice_issue_date" name="c_invoice_issue_date"/>
           <label for="c_invoice_due_date">Invoice Due Date:</label>
@@ -68,10 +68,16 @@
     function valid() {
            var regex = /^[a-zA-Z ]*$/;
            //window.alert(500000>=document.getElementById("c_invoice_amount").value || document.getElementById("c_invoice_amount").value<=50000)
-           var dued= document.getElementById("c_invoice_due_date").value;
+           var issd = document.getElementById("c_invoice_issue_date").value;
+           var dued = document.getElementById("c_invoice_due_date").value;
            var newdate = new Date();
-           newdate.setDate(newdate.getDate() + 10);
+           var b = newdate.getDate()+newdate.getMonth();
+
+           var due =  new Date(dued);
+           var isu = new Date(issd);
            var mydat =  new Date(dued);
+           var t = Math.floor(( Date.parse(dued) - Date.parse(issd) ) / 86400000);
+
            //if(mydat.getDate()>newdate.getDate()){
            if(!regex.test(document.getElementById("c_type").value)){
                window.alert(" Customer Type only allows Characters!!");
@@ -79,9 +85,12 @@
            }else if(document.getElementById("cb_relation").value<=2){
                window.alert("Customer-Business Relation Should be more than 3 years");
                return false;
-           }else if(!regex.test(document.getElementById("c_owner_name").value)){
+           }else if(!regex.test(document.getElementById("c_owner_name").value)) {
                window.alert("Customer Name allows only characters!!");
                return false;
+           }else if(t < 30){
+              window.alert("Due date must be atleast 30 days from Issue Date" + t);
+              return false;
            }else if(newdate.getDate()>mydat.getDate()){
                window.alert("Invoice Due date should be higher than 10 days from today's date");
                return false;
