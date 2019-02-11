@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls import url
 from firstapp import views as user_views
 from django.contrib.auth import views as auth_views
 
@@ -15,9 +16,8 @@ urlpatterns = [
     path('bsdetails/', user_views.bsdetails, name='bsdetails'),
     path('invoiceform/', user_views.invdetails, name='invdetails'),
     path('cdetails/', user_views.cdetails, name='cdetails'),
-    path("basic/upload_books/verifycustomers", user_views.verifycustomers, name='verifycustomers'),
-    path("basic/upload_books/verify/submittedcustomers", user_views.submittedcustomer, name='submittedcustomer'),
-    path("basic/upload_books/verifybusiness", user_views.verifybusiness, name='verifybusiness'),
-    path("basic/upload_books/verify/submittedbusiness",user_views.submittedbusiness, name='submittedbusiness'),
-
+    url(r"^basic/upload_books/verifycustomers/(?P<cid>[0-9]+)/$", user_views.verifycustomers, name='verifycustomers'),
+    url(r"^basic/upload_books/verify/submittedcustomers/(?P<cid>[0-9]+)/$", user_views.submittedcustomer, name='submittedcustomer'),
+    url(r"^basic/upload_books/verifybusiness/(?P<bid>[0-9]+)/$", user_views.verifybusiness, name='verifybusiness'),
+    url(r"^basic/upload_books/verify/submittedbusiness/(?P<bid>[0-9]+)/$", user_views.submittedbusiness, name='submittedbusiness'),
 ]

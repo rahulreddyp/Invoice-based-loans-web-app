@@ -21,6 +21,7 @@ class Business(models.Model):
     b_id = models.AutoField(primary_key=True)
     b_name = models.CharField(max_length=30)
     b_owner_name = models.CharField(max_length=30)
+    b_email = models.EmailField(default='a@example.com')
     b_contact = models.BigIntegerField(default=0)
     b_addr = models.TextField(blank=True)
     b_pan_no = models.CharField(max_length=10)
@@ -91,5 +92,6 @@ class StatusCustomer(models.Model):
     status = models.CharField(default='False', max_length=20)
 
 class StatusBusiness(models.Model):
+    b_id = models.ForeignKey(Business, on_delete=True, blank=True)
     ap_id = models.ForeignKey(Signup, on_delete=True, blank=True)
     status = models.CharField(default='False', max_length=20)
