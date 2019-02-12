@@ -2,13 +2,17 @@ from django.shortcuts import render, redirect, HttpResponse
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Signup, Business, Business_Invoice_Details, Customer, B_Docs, C_Docs, StatusBusiness, StatusCustomer
 from django.contrib.auth.models import User
 from passlib.hash import pbkdf2_sha256
 from django.conf import settings
 from password import mail, password
 import os, errno
 import smtplib
+from .models import Signup, Customer, Business, Business_Invoice_Details, B_Docs, C_Docs, StatusCustomer_LOA,\
+    StatusBusiness_LOA, Loan, Investor, Accepted_Customers, Repayment, Collection, Delinquency,\
+    Accepted_Business, B_Verification, C_Verification, UT_Money, VirtualPayment
+
+
 # Create your views here.
 
 k = 0
@@ -17,10 +21,9 @@ temp = 0
 number_of_invoices = ''
 business_email = ''
 customer_mails = []
-cemail = ''
-upload = False
 status_cust = ''
 status_bus = ''
+rejected_cid = []
 
 def register(request):
     # if not request.session.is_empty():
@@ -104,7 +107,7 @@ def home1(request):
         return render(request, 'home1.html', {})
 
 def invdetails(request):
-    global n, number_of_invoices
+    global n, number_of_invoices, status_bus
     if request.method == "POST":
         uid = request.session['_auth_user_id']
         su = Signup.objects.get(user=uid)
@@ -116,7 +119,8 @@ def invdetails(request):
         b_total_invoice_amount = request.POST.get('b_total_invoice_amount')
         b_no_of_invoices = request.POST.get('b_no_of_invoices')
         invdetail = Business_Invoice_Details(ap_id=su, b_id=bid, b_turnover=b_turnover,
-                                             b_total_invoice_amount=b_total_invoice_amount, b_no_of_invoices=b_no_of_invoices)
+                                             b_total_invoice_amount=b_total_invoice_amount,
+                                             b_no_of_invoices=b_no_of_invoices)
         invdetail.save()
         # Uploading Business Files
         f = request.FILES['b_file_audit']
@@ -131,7 +135,6 @@ def invdetails(request):
         # storing b_no_of_invoices value for getting each customer Invoice's details
         number_of_invoices = int(request.POST.get("b_no_of_invoices"))
         n = number_of_invoices
-        global status_bus
         status_bus = 'Not yet Submitted'
         status_business(1, bid, request)
         return redirect('cdetails')
@@ -184,7 +187,7 @@ def b_upload(request, fname, filename):
 
 
 def cdetails(request):
-    global n, k
+    global n, k, customer_mails
     # Recursion for storing Individual Customer Details
     if n != 0:
 
@@ -197,9 +200,7 @@ def cdetails(request):
                 cb_name = request.POST.get('cb_name')
                 cb_contact = request.POST.get('cb_contact')
                 cb_email = request.POST.get('cb_email')
-                global customer_mails
                 customer_mails.append(cb_email)
-
                 cb_address = request.POST.get('cb_address')
                 cb_type = request.POST.get('c_type')
                 cb_relation = request.POST.get('cb_relation')
@@ -237,7 +238,7 @@ def cdetails(request):
                 document.save()
                 global status_cust
                 status_cust = 'Not Yet Submitted'
-                status_customer(1, custdetails.c_id, request)
+                status_customer(1, bid, custdetails.c_id, request)
                 n = n-1
                 return redirect('cdetails')
         else:
@@ -270,7 +271,7 @@ def c_upload(request, file, filename):
     print("newpath::" + str(new_dir_path))
     fnam = str(new_dir_path) + '\\' + str(file)
     print(filename)
-    print('fname in upload::' +fnam)
+    print('fname in upload::' + fnam)
     with open(fnam, 'wb+') as destination:
         for chunk in file.chunks():
             destination.write(chunk)
@@ -280,12 +281,17 @@ def c_upload(request, file, filename):
     print(fnam + filenew)
     return filenew
 
-# Ananth send mail
+# 1 send mail to all customer
+# 2 send mail to business if all customers accepts
+# 3 Acknowledgment email to business acceptance
+# 4 send mail to business if atleast one customer accepts
+# 5 Acknowledgment email to business rejection
+# 6 Rejection email to business if all customers reject
+
 def sendemail(value, smtpserver = 'smtp.gmail.com:465'):
-    print("hello")
-    global customer_mails
-    print('mail:::', customer_mails)
-    global business_email
+    global customer_mails, business_email
+    b = Business.objects.get(b_email=business_email)
+    bid = b.b_id
     server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
     server_ssl.ehlo()
     server_ssl.login(mail, password)
@@ -293,103 +299,130 @@ def sendemail(value, smtpserver = 'smtp.gmail.com:465'):
         for i in range(len(customer_mails)):
             c = Customer.objects.get(cb_email=customer_mails[i])
             cid = c.c_id
-            text = "Hi!\nI Hope you are doing well \nHere is the link you for the accepting the LOA.Kindly do accept it before the duedate\n" + ' http://127.0.0.1:8000/basic/upload_books/verifycustomers/' + str(
-                cid)
+            text = "Hi!\nI Hope you are doing well \nHere is the link you for the accepting the LOA.Kindly do accept it before the duedate\n"+' http://127.0.0.1:8000/inv_details/verifycustomers/'+str(bid)+'/'+str(cid)
             message = 'Subject: {}\n\n{}'.format("Regarding LOA", text)
-            # server_ssl.sendmail(mail, customer_mails, message)
             server_ssl.sendmail(mail, [customer_mails[i]], message)
         server_ssl.close()
+    if value == 2:
+        text = "Hi!\nI Hope you are doing well \nAll of your customers have accepted the mail\nHere is the link you for the accepting the LOA.Kindly do accept it before the duedate\n" + ' http://127.0.0.1:8000/inv_details/verifybusiness/'+str(bid)
+        message = 'Subject: {}\n\n{}'.format("Final Acceptance Mail", text)
+        server_ssl.sendmail(mail, [business_email], message)
+        server_ssl.close()
     if value == 3:
-        b = Business.objects.get(b_email=business_email)
-        bid = b.b_id
-        text = "Hi!\nI Hope you are doing well \nAll of your customers have accepted the mail\nHere is the link for you to accept the LOA.Kindly do accept it before the duedate\n" + ' http://127.0.0.1:8000/basic/upload_books/verifybusiness/'+str(bid)
-        message = 'Subject: {}\n\n{}'.format("Regarding LOA", text)
+        text = "Hi!\nI Hope you are doing well \nThank You for accepting the aggrement. Here is a confirmation mail to say you have done the acceptance. We will shortly disburse your money\n"
+        message = 'Subject: {}\n\n{}'.format("Acknowledgment Mail", text)
         server_ssl.sendmail(mail, [business_email], message)
         server_ssl.close()
     if value == 4:
-        text = "Hi!\n I Hope you are doing well \nThank You for accepting the aggrement. Here is a confirmation mail to say you have done the acceptance. We will shortly disburse your money\n"
-        message = 'Subject: {}\n\n{}'.format("Thank You for your agreement", text)
+        b = Business_Invoice_Details.objects.get(b_id=bid)
+        total_invoice_amount = b.b_total_invoice_amount
+        text = "Hi!\nI Hope you are doing well \nThank You for accepting the agreement.Your customers with id"
+        for i in range(len(rejected_cid)):
+            c = Customer.objects.get(c_id=rejected_cid[i])
+            total_invoice_amount -= c.cb_invoice_amt
+            text += str(rejected_cid[i])+' , '
+        text += "have not accepted.\nYour total loan eligibility is"+str(total_invoice_amount)+".\nHere is the link if you wish to give your decision"+' http://127.0.0.1:8000/inv_details/verifybusiness/'+str(bid)
+        message = 'Subject: {}\n\n{}'.format("Final Acceptance Mail", text)
         server_ssl.sendmail(mail, [business_email], message)
         server_ssl.close()
-        print('successfully sent the mail')
+    if value == 5:
+        text = "Hi!\nI Hope you are doing well \nYou have rejected the agreement. Please create a new loan if required.\n"
+        message = 'Subject: {}\n\n{}'.format("Acknowledgment Mail", text)
+        server_ssl.sendmail(mail, [business_email], message)
+        server_ssl.close()
+    if value == 6:
+        text = "Hi!\nI Hope you are doing well \nYour all customers have rejected the agreement.\n So can't provide loan.\n"
+        message = 'Subject: {}\n\n{}'.format("Response Mail", text)
+        server_ssl.sendmail(mail, [business_email], message)
+        server_ssl.close()
+    print('successfully sent the mail')
 
-def verifycustomers(request, cid):
+
+def verifycustomers(request, bid, cid):
     if request.method == 'POST':
         c = Customer.objects.get(c_id=cid)
         email = c.cb_email
-        print(cid)
+        print(email)
         server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
         server_ssl.ehlo()
         server_ssl.login(mail, password)
         global status_cust
-        if (request.POST.get('status') == 'Accepted'):
+        if request.POST.get('status') == 'Accepted':
             status_cust = 'Accepted'
             text = "Hi!\nI Hope you are doing well \nThank You for accepting the aggrement. Here is a confirmation mail to say you have done the acceptance.\n"
             message = 'Subject: {}\n\n{}'.format("Thank You for your agreement", text)
             server_ssl.sendmail(mail, [email], message)
             server_ssl.close()
-            return redirect('submittedcustomer', cid)
+            return redirect('submittedcustomer', bid, cid)
         else:
+            rejected_cid.append(cid)
             status_cust = 'Rejected'
-            text = "Hi!\nI Hope you are doing well \nThank You for accepting the aggrement. Here is a confirmation mail to say you have done the acceptance.\n"
-            message = 'Subject: {}\n\n{}'.format("Thank You for your agreement", text)
+            text = "Hi!\nI Hope you are doing well \nYou did not accept the LOA.\n"
+            message = 'Subject: {}\n\n{}'.format("Thank You for your Response", text)
             server_ssl.sendmail(mail, [email], message)
             server_ssl.close()
-            return redirect('submittedcustomer', cid)
-    return render(request, 'LOA/loa_acceptance_customer_mail.html')
+            return redirect('submittedcustomer', bid, cid)
+    return render(request, 'LOA/loa_acceptance_mail.html')
 
+def submittedcustomer(request, bid, cid):
+    global number_of_invoices, status_bus
+    status_customer(2, bid, cid, request)
+    allcustomerstatus = StatusCustomer_LOA.objects.all()
+    print(number_of_invoices)
+    if StatusCustomer_LOA.objects.filter(b_id=bid, status='Not Yet Submitted').count() == 0:
+        if StatusCustomer_LOA.objects.filter(b_id=bid, status='Accepted').count() == number_of_invoices:
+            sendemail(2)
+        elif StatusCustomer_LOA.objects.filter(b_id=bid, status='Rejected').count() == number_of_invoices:
+            status_bus = 'Rejected'
+            status_business(2, bid, request)
+            sendemail(6)
+        else:
+            sendemail(4)
+    s = StatusCustomer_LOA.objects.get(c_id=cid)
+    if s.status == 'Accepted':
+        return HttpResponse('Thank you for accepting the LOA.')
+    else:
+        return HttpResponse('You have rejected the LOA.')
 
-def submittedcustomer(request, cid):
-    global number_of_invoices
-    status_customer(2, cid, request)
-    # if status of all customers is true then only sendmail
-    allcustomerstatus = StatusCustomer.objects.all()
-    if StatusCustomer.objects.filter(status="Accepted").count() == number_of_invoices:
-        sendemail(3)
-    if StatusCustomer.objects.filter(status='Rejected').count() == 1:
-        return HttpResponse('Customers rejected')
-    return render(request, 'LOA/loa_accepted_customer.html')
-
-
-def submittedbusiness(request, bid):
-    sendemail(4)
-    status_business(2, bid, request)
-    # utmoneydisbursed()
-    # utmoneyobtained()
-    return render(request, 'LOA/loa_accepted_business.html')
-
-def status_customer(value, cid, request):
+def status_customer(value, bid, cid, request):
     uid = request.session['_auth_user_id']
     status_id = Signup.objects.get(user=uid)
     cust = Customer.objects.get(c_id=cid)
     global status_cust
     if value == 1:
-        st = StatusCustomer(ap_id=status_id, c_id=cust, status=status_cust)
+        st = StatusCustomer_LOA(ap_id=status_id, b_id=bid, c_id=cust, status=status_cust)
         st.save()
     else:
-        st = StatusCustomer.objects.get(ap_id=status_id, c_id=cust)
+        st = StatusCustomer_LOA.objects.get(ap_id=status_id, b_id=bid, c_id=cust)
         st.status = status_cust
         st.save()
 
 def verifybusiness(request, bid):
     if request.method == 'POST':
         global status_bus
-        if (request.POST.get('status') == 'Accepted'):
+        if request.POST.get('status') == 'Accepted':
             status_bus = 'Accepted'
-            return redirect('submittedbusiness',  bid)
         else:
             status_bus = 'Rejected'
-            return HttpResponse('Business Rejected')
-    return render(request, 'LOA/loa_acceptance_business_mail.html')
+        return redirect('submittedbusiness', bid)
+    return render(request, 'LOA/loa_acceptance_mail.html')
+
+def submittedbusiness(request, bid):
+    status_business(2, bid, request)
+    if status_bus == 'Accepted':
+        sendemail(3)
+        return HttpResponse('Thank you for accepting the LOA.The amount will be shortly be disbursed.')
+    else:
+        sendemail(5)
+        return HttpResponse('You have rejected the loan process')
 
 def status_business(value, bid, request):
-    global status_bus
     uid = request.session['_auth_user_id']
     status_id = Signup.objects.get(user=uid)
-    if (value == 1):
-        st = StatusBusiness(ap_id=status_id, b_id=bid, status=status_bus)
+    if value == 1:
+        st = StatusBusiness_LOA(ap_id=status_id, b_id=bid, status=status_bus)
         st.save()
     else:
-        st = StatusBusiness.objects.get(ap_id=status_id, b_id=bid)
+        st = StatusBusiness_LOA.objects.get(ap_id=status_id, b_id=bid)
         st.status = status_bus
         st.save()

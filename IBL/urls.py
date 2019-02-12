@@ -16,8 +16,8 @@ urlpatterns = [
     path('bsdetails/', user_views.bsdetails, name='bsdetails'),
     path('invoiceform/', user_views.invdetails, name='invdetails'),
     path('cdetails/', user_views.cdetails, name='cdetails'),
-    url(r"^basic/upload_books/verifycustomers/(?P<cid>[0-9]+)/$", user_views.verifycustomers, name='verifycustomers'),
-    url(r"^basic/upload_books/verify/submittedcustomers/(?P<cid>[0-9]+)/$", user_views.submittedcustomer, name='submittedcustomer'),
-    url(r"^basic/upload_books/verifybusiness/(?P<bid>[0-9]+)/$", user_views.verifybusiness, name='verifybusiness'),
-    url(r"^basic/upload_books/verify/submittedbusiness/(?P<bid>[0-9]+)/$", user_views.submittedbusiness, name='submittedbusiness'),
+    url(r"^inv_details/verifycustomers/(?P<bid>[0-9]+)/(?P<cid>[0-9]+)/$", user_views.verifycustomers, name='verifycustomers'),
+    url(r"^inv_details/verify/submittedcustomers/(?P<bid>[0-9]+)/(?P<cid>[0-9]+)/$", user_views.submittedcustomer, name='submittedcustomer'),
+    url(r"^inv_details/verifybusiness/(?P<bid>[0-9]+)/$", user_views.verifybusiness, name='verifybusiness'),
+    url(r"^inv_details/verify/submittedbusiness/(?P<bid>[0-9]+)/$", user_views.submittedbusiness, name='submittedbusiness'),
 ]
