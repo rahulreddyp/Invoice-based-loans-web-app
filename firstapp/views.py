@@ -8,6 +8,9 @@ from django.conf import settings
 from password import mail, password
 import os, errno
 import smtplib
+import random
+from django.utils.crypto import get_random_string
+from datetime import datetime, timedelta
 from .models import Signup, Customer, Business, Business_Invoice_Details, B_Docs, C_Docs, StatusCustomer_LOA,\
     StatusBusiness_LOA, Loan, Investor, Accepted_Customers, Repayment, Collection, Delinquency,\
     Accepted_Business, B_Verification, C_Verification, UT_Money, VirtualPayment
@@ -188,14 +191,12 @@ def b_upload(request, fname, filename):
 
 def cdetails(request):
     global n, k, customer_mails
+    uid = request.session['_auth_user_id']
+    su = Signup.objects.get(user=uid)
+    bid = Business.objects.get(ap_id=su.ap_id)
     # Recursion for storing Individual Customer Details
     if n != 0:
-
         if request.method == "POST":
-
-                uid = request.session['_auth_user_id']
-                su = Signup.objects.get(user=uid)
-                bid = Business.objects.get(ap_id=su.ap_id)
                 c_owner_name = request.POST.get('c_owner_name')
                 cb_name = request.POST.get('cb_name')
                 cb_contact = request.POST.get('cb_contact')
@@ -219,6 +220,7 @@ def cdetails(request):
                                        c_issue_date=c_issue_date, c_due_date=c_due_date)
                 custdetails.save()
                 request.session['c_id'] = custdetails.c_id
+                # Taking required files from customers
                 file_audit = request.FILES['c_file_audit']
                 filename = 'c_file_audit'
                 c_audit_path = c_upload(request, file_audit, filename)
@@ -236,19 +238,31 @@ def cdetails(request):
                                   c_sales_ledger=c_ledger_path, c_file_invoice=c_file_invoice_path,
                                   c_file_statement=c_file_statement_path)
                 document.save()
+                # redirecting to customer files verification
                 global status_cust
                 status_cust = 'Not Yet Submitted'
                 status_customer(1, bid, custdetails.c_id, request)
-                n = n-1
+                customer_verification(bid, custdetails.c_id, request)
+                print(custdetails.c_id)
+                n = n - 1
                 return redirect('cdetails')
         else:
             k = k + 1
             return render(request, 'ApplyLoan/customer.html', {'n': k})
     else:
-        sendemail(1)
+        # Checking if All the customers have been rejected in ML/Manual Verification
+        if C_Verification.objects.filter(b_id=bid, final_status='Accepted').count() == 0:
+            business_verification(2, bid, request)
+            sendemail(request, 7)
+        else:
+            # redirecting to the view which checks for Business accuracy in ML verification
+            business_verification(1, bid, request)
+        # virtualpay_mail(request)
+        # sending LOA mails to customers
+        sendemail(request, 1)
         return render(request, 'Status.html', {})
 
-
+# Uploading customer documents in their related folders
 def c_upload(request, file, filename):
     uid = request.session['_auth_user_id']
     ap_id = Signup.objects.get(user=uid)
@@ -281,14 +295,84 @@ def c_upload(request, file, filename):
     print(fnam + filenew)
     return filenew
 
+# customer ML/Manual Verification
+def customer_verification(bid, cid, request):
+    global rejected_cid
+    uid = request.session['_auth_user_id']
+    su = Signup.objects.get(user=uid)
+    cust = Customer.objects.get(c_id=cid)
+    mlaccuracy = round(random.uniform(70, 100), 1)
+    mvaccuracy = round(random.uniform(70, 100), 1)
+    cv = C_Verification(ap_id=su, b_id=bid, c_id=cust, ml_accuracy=mlaccuracy, mv_accuracy=mvaccuracy, ml_status='Not Yet Verified', mv_status='Not Yet Verified', final_status='Not Yet Verified')
+    cv.save()
+    cv = C_Verification.objects.get(ap_id=su, b_id=bid, c_id=cust, ml_accuracy=mlaccuracy, mv_accuracy=mvaccuracy)
+    if cv.ml_accuracy > 70:
+        cv.ml_status = 'Accepted'
+    else:
+        cv.ml_status = 'Rejected'
+    if cv.mv_accuracy > 70:
+        cv.mv_status = 'Accepted'
+    else:
+        cv.mv_status = 'Rejected'
+    if cv.ml_status == 'Accepted' and cv.mv_status == 'Accepted':
+        cv.final_status = 'Accepted'
+    else:
+        cv.final_status = 'Rejected'
+        rejected_cid.append(cid)
+        customer_mails.remove(cust.cb_email)
+    cv.save()
+    return
+
+def business_verification(value, bid, request):
+    global number_of_invoices, rejected_cid
+    uid = request.session['_auth_user_id']
+    su = Signup.objects.get(user=uid)
+    b = Business_Invoice_Details.objects.get(b_id=bid)
+    mlaccuracy = round(random.uniform(70, 100), 1)
+    mvaccuracy = round(random.uniform(70, 100), 1)
+    if value == 1:
+        bv = B_Verification(ap_id=su, b_id=bid, ml_accuracy=mlaccuracy, mv_accuracy=mvaccuracy, requested_amount=b.b_total_invoice_amount, sanctioned_amount=b.b_total_invoice_amount, ml_status='Not Yet Verified', mv_status = 'Not Yet Verified', final_status='Not Yet Verified')
+        bv.save()
+        if bv.ml_accuracy > 70:
+            bv.ml_status = 'Accepted'
+        else:
+            bv.ml_status = 'Rejected'
+        if bv.mv_accuracy > 70:
+            bv.mv_status = 'Accepted'
+        else:
+            bv.mv_status = 'Rejected'
+        if bv.ml_status == 'Accepted' and bv.mv_status == 'Accepted':
+            bv.final_status = 'Accepted'
+        else:
+            bv.final_status = 'Rejected'
+        bv.save()
+        if bv.final_status == 'Accepted':
+            if len(rejected_cid) == 0:
+                sendemail(request, 1)
+            else:
+                sendemail(request, 7)
+                sendemail(request, 1)
+
+        else:
+            sendemail(request, 8)
+    else:
+        bv = B_Verification(ap_id=su, b_id=bid, ml_accuracy=0.0, ml_remarks='Rejected due to customers',
+                            mv_accuracy=0.0, mv_remarks='Rejected due to customers', requested_amount=b.b_total_invoice_amount,
+                            sanctioned_amount=b.b_total_invoice_amount, ml_status='Rejected due to customers',
+                            mv_status='Rejected due to customers', final_status='Rejected due to customers')
+        bv.save()
+
+
 # 1 send mail to all customer
 # 2 send mail to business if all customers accepts
 # 3 Acknowledgment email to business acceptance
 # 4 send mail to business if atleast one customer accepts
 # 5 Acknowledgment email to business rejection
 # 6 Rejection email to business if all customers reject
+# 7 Rejection email to the customers whose ML or manual verification gets rejected
+# 8 Rejection email to business if ML or manual verification fails
 
-def sendemail(value, smtpserver = 'smtp.gmail.com:465'):
+def sendemail(request, value, smtpserver = 'smtp.gmail.com:465'):
     global customer_mails, business_email
     b = Business.objects.get(b_email=business_email)
     bid = b.b_id
@@ -313,6 +397,7 @@ def sendemail(value, smtpserver = 'smtp.gmail.com:465'):
         message = 'Subject: {}\n\n{}'.format("Acknowledgment Mail", text)
         server_ssl.sendmail(mail, [business_email], message)
         server_ssl.close()
+        accepted_from_loa(request)
     if value == 4:
         b = Business_Invoice_Details.objects.get(b_id=bid)
         total_invoice_amount = b.b_total_invoice_amount
@@ -335,8 +420,21 @@ def sendemail(value, smtpserver = 'smtp.gmail.com:465'):
         message = 'Subject: {}\n\n{}'.format("Response Mail", text)
         server_ssl.sendmail(mail, [business_email], message)
         server_ssl.close()
+    if value == 7:
+        text = "Hi !\nI Hope you are doing well \nYour customer with id"
+        for i in range(len(rejected_cid)):
+            c = Customer.objects.get(c_id=rejected_cid[i])
+            text += str(rejected_cid[i]) + ' , '
+        text += "have been rejected .\n"
+        message = 'Subject: {}\n\n{}'.format("Response Mail", text)
+        server_ssl.sendmail(mail, [business_email], message)
+        server_ssl.close()
+    if value == 8:
+        text = "Hi!\nI Hope you are doing well \nYour have been rejected with the loan.\n So can't provide loan.\n"
+        message = 'Subject: {}\n\n{}'.format("Response Mail", text)
+        server_ssl.sendmail(mail, [business_email], message)
+        server_ssl.close()
     print('successfully sent the mail')
-
 
 def verifycustomers(request, bid, cid):
     if request.method == 'POST':
@@ -371,13 +469,13 @@ def submittedcustomer(request, bid, cid):
     print(number_of_invoices)
     if StatusCustomer_LOA.objects.filter(b_id=bid, status='Not Yet Submitted').count() == 0:
         if StatusCustomer_LOA.objects.filter(b_id=bid, status='Accepted').count() == number_of_invoices:
-            sendemail(2)
+            sendemail(request, 2)
         elif StatusCustomer_LOA.objects.filter(b_id=bid, status='Rejected').count() == number_of_invoices:
             status_bus = 'Rejected'
             status_business(2, bid, request)
-            sendemail(6)
+            sendemail(request, 6)
         else:
-            sendemail(4)
+            sendemail(request, 4)
     s = StatusCustomer_LOA.objects.get(c_id=cid)
     if s.status == 'Accepted':
         return HttpResponse('Thank you for accepting the LOA.')
@@ -410,10 +508,10 @@ def verifybusiness(request, bid):
 def submittedbusiness(request, bid):
     status_business(2, bid, request)
     if status_bus == 'Accepted':
-        sendemail(3)
+        sendemail(request, 3)
         return HttpResponse('Thank you for accepting the LOA.The amount will be shortly be disbursed.')
     else:
-        sendemail(5)
+        sendemail(request, 5)
         return HttpResponse('You have rejected the loan process')
 
 def status_business(value, bid, request):
@@ -426,3 +524,112 @@ def status_business(value, bid, request):
         st = StatusBusiness_LOA.objects.get(ap_id=status_id, b_id=bid)
         st.status = status_bus
         st.save()
+
+# RAHUL virtual payment for customers
+
+# Generating virtual payment address and storing
+def virtualpayment(request, b_id, c_id):
+    global customer_mails
+    # v_id = random.randint(100000, 999999)
+    print(b_id)
+    print(b_id.b_id)
+    print(c_id.c_id)
+    vpa = get_random_string(length=10) + str(b_id.b_id) + '/' + str(c_id.c_id)
+    # cust = Customer.objects.get(c_id=c_id)
+    details = VirtualPayment(vpa=vpa, b_id=b_id, c_id=c_id, expiry_date=datetime.now() + timedelta(days=10),
+                             amount=c_id.cb_invoice_amt)
+    details.save()
+    repaymentmail(request, c_id, vpa)
+    print("Disbursement process has started")
+
+# sending virtual payment address to customer's email id
+def repaymentmail(request, cust, vpa):
+    server_ssl = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+    server_ssl.ehlo()
+    server_ssl.login(mail, password)
+    # c = Customer.objects.get(cb_email=)
+    # virtual_payment = VirtualPayment.objects.get(c_id=c_id)
+    # cid = c.c_id
+    text = "Hi!" + cust.c_owner_name + "\nI Hope you are doing well \nHere is the link for paying your Invoice due amount.Kindly do it before the due date\n" + "\nhttp://127.0.0.1:8000/repaymentmail/" + str(vpa)
+    message = 'Subject: {}\n\n{}'.format("Payment of Invoice Amount", text)
+    server_ssl.sendmail(mail, cust.cb_email, message)
+    server_ssl.close()
+    print("payment mail sent")
+
+# Customer's response page for payment
+def repaymail(request, vpa, b_id, c_id):
+    if request.method == 'POST':
+        return HttpResponse("Payment Successful! ")
+    else:
+        return render(request, 'Repayment/repaymentmail.html', {})
+
+# storing accepted business and customer details from verification
+def accepted_from_loa(request):
+    sb = StatusBusiness_LOA.objects.get(status='Accepted')
+    accepted_business(request, sb.ap_id, sb.b_id)
+
+
+# DISBURSEMENT--AJAY
+def accepted_business(request, apid, bid):
+    print("storing accepted business details")
+    bverification = B_Verification.objects.get(b_id=bid)
+    invoice_amount = bverification.requested_amount
+    sanctioned_amount = bverification.sanctioned_amount
+    loanid = generate_loan(request, apid, bid)
+    l_id = Loan.objects.get(loan_id=loanid)
+    print(l_id)
+    print(l_id.loan_id)
+    request.session['loanid'] = loanid
+    data = Accepted_Business(ap_id=apid, b_id=bid, invoice_amount=invoice_amount, sanctioned_amount=sanctioned_amount, loan_id=l_id)
+    data.save()
+    sc = StatusCustomer_LOA.objects.filter(status='Accepted')
+    print(sc)
+    for i in sc:
+        print(i.ap_id)
+        accepted_customers(request, i.ap_id, i.b_id, i.c_id, loanid)
+    print("loop")
+    # return 'success'
+
+def accepted_customers(request, apid, bid, cid, loan_id):
+    ap_id = Signup.objects.get(ap_id=apid.ap_id)
+    b_id = Business.objects.get(b_id=bid.b_id)
+    cus = Customer.objects.get(c_id=cid.c_id)
+    invoice_amount = cus.cb_invoice_amt
+    repaid_due_date = cus.c_due_date
+    loanid = Loan.objects.get(loan_id=loan_id)
+    data = Accepted_Customers(ap_id=ap_id, b_id=b_id, c_id=cus, invoice_amount=invoice_amount, repaid_due_date=repaid_due_date, loan_id=loanid)
+    data.save()
+    print("storing customer")
+    virtualpayment(request, b_id, cus)
+    # return 'success'
+
+def generate_loan(request, apid, bid):
+    status = 'loan approved and id created'
+    data = Loan(ap_id=apid, b_id=bid, status=status)
+    data.save()
+    loanid = data.loan_id
+    return loanid
+
+# def disburse(request, val):
+#     loanid = request.session['loanid']
+#     if val == 1:
+#         a_business = Accepted_Business.objects.get(loan_id=loanid)
+#         sanction_amount = a_business.sanctioned_amount
+#         disburseamount = sanction_amount*0.8
+#         remaining_amount = sanction_amount*0.1
+#         print(disburseamount, '--', remaining_amount)
+#         #Ut_Money()
+#         data = Loan.objects.get(loan_id=loanid)
+#         data.total_amount = sanction_amount
+#         data.one_disburse_amount = disburseamount
+#         data.one_disburse_date = datetime.now()
+#         data.two_disburse_amount = remaining_amount
+#         data.status = '1 Disbursement is completed'
+#         data.save()
+#     elif val == 2:
+#         # a_business = accepted_business.objects.get(loan_id=loanid)
+#         data = Loan.objects.get(loan_id=loanid)
+#         remaining_amount = data.two_disburse_amount
+#         data.two_disburse_date = datetime.now()
+#         data.status = '2 Disbursement is completed'
+#         data.save()

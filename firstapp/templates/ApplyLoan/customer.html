@@ -24,13 +24,13 @@
           <label for="cb_name">Customer's Business Name:</label>
           <input type="text" id="cb_name"  name="cb_name" required/>
           <label for="cb_contact">Customer Business Contact No:</label>
-            <input type="number" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)" name="cb_contact" required/>
+            <input type="number" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)" id="cb_contact" name="cb_contact" required/>
           <!--<label for="c_contact">Customer Contact No:</label>
             <input type="text"  name="c_contact"/> -->
           <label for="cb_email">Customer Email Id:</label>
           <input type="text" id="cb_email" name="cb_email" required/>
           <label for="cb_address">Customer's Business Address:</label>
-            <textarea type="text"  name="cb_address" required></textarea>
+            <textarea type="text" id="cb_address" name="cb_address" required></textarea>
           <label for="c_type">Customer's Business Type:</label>
             <input type="text" id="c_type" placeholder="Eg: Manufacture,Retail,Textile,etc"  name="c_type" required/>
           <label for="cb_relation" >Relationship Between Customer and Business:</label>
@@ -38,9 +38,9 @@
           {% comment %}<label for="c_pan_no">Customer PAN:</label>
             <input type="text"  name="c_pan_no"/>{% endcomment %}
           <label for="c_bus_pan_no">Customer's Business PAN:</label>
-            <input type="text" maxlength="10" id="c_bus_pan_no" name="c_bus_pan_no" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  />
+            <input type="text" maxlength="10" id="c_bus_pan_no" name="c_bus_pan_no" oninput="this.value=this.value.slice(0,this.maxLength)"  />
           <label for="c_est_date">Customer's Business Establish Date:</label>
-            <input type="date"  name="c_est_date"/>
+            <input type="date" id="c_est_date" name="c_est_date"/>
           <label for="c_turnover">Turnover of Customer's Business:</label>
             <input type="number" id="c_turnover" name="c_turnover" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  />
           <label for="c_invoice_no">Customer's invoice Number:</label>
@@ -72,9 +72,6 @@
            var dued = document.getElementById("c_invoice_due_date").value;
            var newdate = new Date();
            var b = newdate.getDate()+newdate.getMonth();
-
-           var due =  new Date(dued);
-           var isu = new Date(issd);
            var mydat =  new Date(dued);
            var t = Math.floor(( Date.parse(dued) - Date.parse(issd) ) / 86400000);
 
