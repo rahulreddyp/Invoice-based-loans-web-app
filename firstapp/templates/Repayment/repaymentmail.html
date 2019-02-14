@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+{% block content %}
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
@@ -8,18 +8,30 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <title>Loan Repayment</title>
+    <script>
+        function valid() {
+            if(document.getElementsByName('submit')){
+             alert("Do you want to confirm your loan payment!");
+        }
+        }
+    </script>
 </head>
 <body style="text-align: center; align-content: center">
 
-    <form method="POST">
-        {%  crsf_token %}
+    <form method="POST" onsubmit="valid()">
+        {%  csrf_token %}
         <div class="col-lg-6">
-            <label for="bid">Business Id:</label>
-            <input type="text" id="bid" name="bid"><br>
-            <label for="invoice-amt">Invoice Amount:</label>
-            <input type="number" id="invoice-amt" name="invoice-amt"><br>
-            <button type="submit">Make Payment</button>
+            {% for i in ac %}
+            <label for="bname">Business Name:</label>
+                {{ i.b_id }}<br>
+                <label for="cname">Customer Name:</label>
+                {{ i.c_id }}<br>
+            <label for="invoice-amt">Your Invoice Amount:</label>
+                {{ i.invoice_amount }}<br>
+            <button type="submit" name="submit">Make Payment</button> &nbsp;
+            <button type="reset" name="cancel">Cancel</button>
+            {% endfor %}
         </div>
     </form>
 </body>
-</html>
+{% endblock %}

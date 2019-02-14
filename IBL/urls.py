@@ -21,6 +21,5 @@ urlpatterns = [
     url(r"^inv_details/verifybusiness/(?P<bid>[0-9]+)/$", user_views.verifybusiness, name='verifybusiness'),
     url(r"^inv_details/verify/submittedbusiness/(?P<bid>[0-9]+)/$", user_views.submittedbusiness, name='submittedbusiness'),
     # url(r"^virtualpayment/(?P<vpa>[0-9a-zA-Z]+)/$", user_views.virtualpayment, name='VirtualPayment'),
-    url(r"^repaymentmail/(?P<vpa>[0-9a-zA-Z]+)(?P<bid>[0-9]+)/(?P<cid>[0-9]+)/$", user_views.repaymail, name='repaymentmail'),
-    # url(r"^repaymentmail/paymentgateway/(?P<vpa>[0-9a-zA-Z]+)/$", user_views.repaymail, name='repaymentmail'),
+    url(r"^repaymail/(?P<vpa>[0-9a-zA-Z]+)/(?P<b_id>[0-9]+)/(?P<c_id>[0-9]+)/$", user_views.repaymail, name='repaymail'),
 ]
