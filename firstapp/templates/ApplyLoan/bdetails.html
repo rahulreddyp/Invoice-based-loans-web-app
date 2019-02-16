@@ -5,7 +5,7 @@
   <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login</title>
+        <title>Business Details</title>
         <link rel="stylesheet" href="{% static 'css/blog.css' %}">
         <link href='https://fonts.googleapis.com/css?family=Nunito:400,300' rel='stylesheet' type='text/css'>
         <style lang="css">
@@ -22,23 +22,23 @@
       {% csrf_token %}
         <h1>Business Details Form</h1>
           <label for="bname">Name of the Business:</label>
-          <input type="text" id="bname" name="bname" required/>
+          <input type="text" maxlength="50" id="bname" name="bname" required/>
           <label for="b_owner_name">Owner of the Business:</label>
-          <input type="text" id="b_owner_name" name="b_owner_name" required/>
+          <input type="text" maxlength="40" placeholder="" id="b_owner_name" name="b_owner_name" required/>
           <label for="b_email">Email Id:</label>
-          <input type="email" id="b_email" name="b_email" required/>
+          <input type="email" maxlength="40" id="b_email" name="b_email" required/>
           <label for="b_contact">Contact No:</label>
           <input type="number" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  pattern="[1-9]{1}[0-9]{9}" name="b_contact" required/>
-          <label for="b_addr">Business Address:</label>
-          <textarea type="text"  name="b_addr" required></textarea>
-           <label for="b_pan_no">Business PAN:</label>
+          <label for="b_addr">Business Address(max 150 chars):</label>
+          <textarea name="b_addr" style="resize:none" minlength="10" maxlength="150" rows="3" required></textarea>
+           <label for="b_pan_no">Business PAN No:</label>
           <input type="text" maxlength="10" name="b_pan_no" required/>
-           <label for="b_est_date">Business Establish Date:</label>
-          <input type="date" id="b_est_date" name="b_est_date" required/>
+           <label for="b_est_date">Business Establishment Date:</label>
+          <input type="date"  id="b_est_date" name="b_est_date" required/>
           <label for="b_type">Business Type:</label>
           <select name="b_type" id="b_type">
-                <option value="Select" selected>Select</option>
-                <option value="Manufacturer">Manufacturer</option>
+                <option value="None Selected" selected disabled>-Select one-</option>
+                <option value="Manufacturing">Manufacturing</option>
                 <option value="Retailer">Retailer</option>
                 <option value="Retailer">Transportation</option>
                 <option value="Textile">Textile</option>
@@ -49,15 +49,30 @@
     <script>
     function valid() {
        var regex = /^[a-zA-Z ]*$/;
+       var format = /[!#$%^&*()+\-=\[\]{};':"\\|,<>\/?]/;
+       //var phoneno = /^\d{10}$/;
        //window.alert(500000>=document.getElementById("c_invoice_amount").value || document.getElementById("c_invoice_amount").value<=50000)
        {% comment %}var dued= document.getElementById("c_invoice_due_date").value;
        var newdate = new Date();
        newdate.setDate(newdate.getDate() + 10);
        var mydat =  new Date(dued);{% endcomment %}
        //if(mydat.getDate()>newdate.getDate()){
-       if(!regex.test(document.getElementById("b_owner_name").value)){
-           window.alert("Owner Name field allows only Characters!!");
+        // Checking if user enters only numbers or specialsymbols for business name
+        if(!(isNaN(document.getElementById("bname").value)) || format.test(document.getElementById("bname").value)){
+                window.alert('Enter a valid Business Name(can be Alphanumeric)!!');
+                return false;
+       }
+       else if(!(regex.test(document.getElementById("b_owner_name").value)) || format.test(document.getElementById("b_owner_name").value)) {
+            window.alert("Owner Name field allows only alphabets!!");
+            return false;
+        }else if(document.getElementById("b_type").value === 'None Selected'){
+           window.alert("Please select your Type of Business!");
            return false;
+       }
+       else {
+           return true;
+       }
+    }
        {% comment %}}else if(document.getElementById("cb_relation").value<=2){
            window.alert("Should be more than 2 years");
            return false;
@@ -67,20 +82,6 @@
        }else if(newdate.getDate()>mydat.getDate()){
            window.alert("Invoice Due date should be higher than 10 days from today's date");
            return false;
-       }else if(500000>=document.getElementById("c_invoice_amount").value || document.getElementById("c_invoice_amount").value<=50000){
-           window.alert("Invoice amount should be greater than 50k and less than 5Lc");
-           return false;{% endcomment %}
-       }
-       else {
-           return true;
-       }
-    }
-    function check() {
-        if(document.getElementById("b_contact").value.length>10){
-            window.alert("Contact no should be 10 digits only");
-            return false;
-        }
-
-    }
+       {% endcomment %}
     </script>
 {% endblock %}

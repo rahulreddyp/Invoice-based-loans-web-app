@@ -14,30 +14,29 @@
             -webkit-appearance: none;
             margin: 0;
         }
+            input[type="number"] {
+    -moz-appearance: textfield;
+        }
         </style>
   </head>
   <body>
-
       <form action="" onsubmit="return validation()" enctype="multipart/form-data" method="POST">
       {% csrf_token %}
         <h1>Invoice Details Form</h1>
           <label for="b_turnover">Business Turnover:</label>
-          <input type="number" placeholder="Should Be Minimum 10 Lakh Rupees" id="b_turnover" name="b_turnover" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
-          <p id="demo"></p>
+          <input type="number" placeholder="Should Be Minimum 10 Lakh Rupees" id="b_turnover" name="b_turnover" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)" required/>
           <label for="b_total_invoice_amount">Total Invoice amount:</label>
-          <input type="number" placeholder="Must be Min 1 Lakh and max 2Lakh Rupees" id="b_total_invoice_amount" name="b_total_invoice_amount" maxlength="10" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
-          <p id="demo"></p>
+          <input type="number" placeholder="Must be Min 1 Lakh and max 2Lakh Rupees" id="b_total_invoice_amount" name="b_total_invoice_amount" maxlength="6" oninput="this.value=this.value.slice(0,this.maxLength)" required/>
           <label for="b_no_of_invoices">Number of the Invoices:</label>
-          <input type="number" placeholder="Allowed upto max of 2 Invoices"  name="b_no_of_invoices" maxlength="1" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
-          <p>Please upload required files of ".docx" type and max size of 1 MB!</p>
+          <input type="number" placeholder="Allowed upto max of 2 Invoices" id="b_no_of_invoices" name="b_no_of_invoices" maxlength="1" oninput="this.value=this.value.slice(0,this.maxLength)"  required/>
+          <p>Accepted File Types: .doc/.docx/pdf/png/jpg</p>
           <label for="b_file_audit">Audit File:</label>
-          <input type="file" placeholder="" name="b_file_audit" id="b_file_audit">
+          <input type="file" accept="image/*,.docx,.doc,.pdf" name="b_file_audit" id="b_file_audit">
           <label for="b_file_saleledger">Sales Ledger:</label>
-          <input type="file" placeholder="" name="b_file_saleledger" id="b_file_saleledger">
+          <input type="file" accept="image/*,.docx,.doc,.pdf" name="b_file_saleledger" id="b_file_saleledger">
           <br/><br/>
         <button type="submit" onsubmit="validation()">Submit</button>
       </form >
-
     </body>
     <script>
       function validation() {
@@ -45,17 +44,17 @@
             window.alert("Business Turnover must be greater than 10 Lakhs");
             return false;
         }
-        if(document.getElementById("b_total_invoice_amount").value<99999 || document.getElementById("b_total_invoice_amount").value> 200001)
+        else if(document.getElementById("b_total_invoice_amount").value<99999 || document.getElementById("b_total_invoice_amount").value> 200001)
         {
             window.alert("Total Invoice Amount must be greater than 1 Lakh and less than 2 Lakh");
             return false;
-        }
+        }else if(document.getElementById("b_no_of_invoices").value>2 ) {
+            window.alert("No. of Invoices cannot be more than 2!!");
+            //document.getElementById("demo").innerHTML = "Cannot be more than 2 Invoices!";
+            return false;
+        }else{ return true;}
       }
-
-     /*  inpObj = document.getElementsByName("b_turnover");
-        if (inpObj<1000000) {
-            document.getElementById("demo").innerHTML = inpObj.validationMessage;
-        }
+         /*
         inpObj = document.getElementsByName("b_total_invoice_amount");
         if (inpObj<100000 || inpObj>1000000) {
             document.getElementById("demo").innerHTML = inpObj.validationMessage;
