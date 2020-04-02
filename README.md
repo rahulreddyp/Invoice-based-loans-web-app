@@ -1,0 +1,8 @@
+# Invoice Based Loans - Django Web Application
+
+“Invoice Based Loans” which is more commonly referred to as “Invoice Factoring” is a financial transaction and a type of debtor finance, which provides a great way for small to medium scale business firms to improve their cash flow or working capital by using their sales Invoices as collateral to borrow funds, instead of waiting for payment of Invoices. In short, Invoice Factoring is the purchase of Accounts Receivables i.e., Unpaid Invoices, for Immediate cash by a Third-party Factoring Company. It gives business the power to ensure growth without incurring debts by providing a solution for short-term cash flow problems.
+
+The process of Invoice Factoring Application begins when a business approaches the factoring company to sell their customer’s unpaid Invoices by providing required documents and details. The factoring Company then verifies the submitted Invoices and customer’s creditworthiness and sends a “Letter of Agreement” (LOA) to all the customers that your business has assigned the factor as an entity to receive future payments for all the Invoices. After the approval, the company gives business some advance cash (depending on the type of Industry), up to 80% of Invoices value within 24 hours. The credit-worthy customers must pay their Invoice amount to Factoring Company within 90 days. Once payment is received, the factoring company gives back the remaining balance minus the applicable fees.    
+
+The project “Invoice Based Loans Application” is a Factoring Company’s web application, which provides an Interface for implementing Invoice Factoring Process.
+
